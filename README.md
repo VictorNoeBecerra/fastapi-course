@@ -3,14 +3,17 @@
 Welcome to my **FastAPI Course Project**! This repository contains all the exercises, examples, and projects that I am working on while learning FastAPI through the course on Platzi.
 
 ## Table of Contents
-- [About the Project](#about-the-project)
-- [Technologies Used](#technologies-used)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+- [FastAPI Course Project](#fastapi-course-project)
+  - [Table of Contents](#table-of-contents)
+  - [About the Project](#about-the-project)
+  - [Technologies Used](#technologies-used)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [Usage](#usage)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Author](#author)
 
 ## About the Project
 
@@ -18,6 +21,8 @@ This project is a collection of code examples, projects, and exercises from the 
 - Creating APIs quickly and efficiently.
 - Using Pydantic for data validation.
 - Exploring async capabilities for concurrent requests.
+
+In this course, we will be building an API that allows us to create billing accounts for our clients.
 
 Feel free to explore the repository and learn alongside me!
 
@@ -84,3 +89,7 @@ Contributions are welcome! If you want to improve something or fix an issue, fee
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Víctor Noé Becerra Hernández**
