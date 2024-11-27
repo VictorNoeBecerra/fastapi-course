@@ -1,0 +1,4 @@
+py -m venv venv curso-fastapi || creamos el entorno virtual
+curso-fastapi\Scripts\activate || Activamos el entorno virtual
+pip install "fastapi[standard]" || Instala fastapi y todo lo que necesite para que se instale todo lo que necesitamos 
+fastapi dev || al correr la app en modo desarrollo al guardar los archivos se reinicia el server para guardar los cambios
