@@ -31,7 +31,7 @@ async def root():
 #Si no se especifica la varible del parámetro de time() significa que se va a acceder a la ruta /time?iso_code=MX ó /time
 #Si se especifica entonces se accede solo a /time/MX
 @app.get('/time/{iso_code}')
-async def time(iso_code: Optional[str] = None):
+async def time(iso_code: Optional[str] = None, time_format: Optional[bool] = False):
     
     if iso_code is None:
         print(iso_code)
@@ -40,6 +40,7 @@ async def time(iso_code: Optional[str] = None):
         iso = iso_code.upper()
         
     timezone_str = country_timezones.get(iso) #America/Bogota
+    format = '%d de %B del %Y, %H:%M:%S' if time_format else '%d de %B del %Y, %I:%M:%S %p'
     
     if(timezone_str is None):
         raise HTTPException(status_code=404, detail="Timezone not found for the provided ISO code")
@@ -47,7 +48,8 @@ async def time(iso_code: Optional[str] = None):
     try:
         tz = zoneinfo.ZoneInfo(timezone_str)
         current_date = datetime.now(tz)
-        date_formated = current_date.strftime("%d de %B del %Y, %H:%M:%S")
+        
+        date_formated = current_date.strftime(format)
         return {"time": date_formated}
 
     except zoneinfo.ZoneInfoNotFoundError:
