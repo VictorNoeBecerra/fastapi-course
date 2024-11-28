@@ -7,5 +7,9 @@ fastapi dev || al correr la app en modo desarrollo al guardar los archivos se re
 
         ClASS 5
 Primero se crean los modelos con BaseModel para validar la informacion que llega al endpoint y validarla con Pydantic
-        CLASS 6
+        CLASS 6-11
 Se crean los modelos Customer, Invoices, Transactions separados pra organizar mejor el código
+Se crean los endpoints CRUD de ejemplo de customers
+        ClASS 12
+Se empezará a moduolarizar los endpoints
+Se empezará a usar el agrupador de routers de FastApi

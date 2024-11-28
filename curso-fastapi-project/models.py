@@ -12,6 +12,9 @@ class CustomerBase(SQLModel):
     
 class CustomerCreate(CustomerBase):
     pass
+
+class CustomerUpdate(CustomerBase):
+    pass
     
 class Customer(CustomerBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

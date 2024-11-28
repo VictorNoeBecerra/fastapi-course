@@ -3,7 +3,7 @@
 from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import FastAPI #Importamos FastAPI
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from pydantic import BaseModel  
 from datetime import datetime
 import zoneinfo
@@ -11,7 +11,7 @@ import zoneinfo
 from sqlmodel import select
 from timezones import country_timezones
 from db import SessionDep, create_all_tables
-from models import Customer, CustomerCreate, Invoice, Transaction
+from models import Customer, CustomerCreate, CustomerUpdate, Invoice, Transaction
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -67,13 +67,38 @@ async def create_customer(customer_data: CustomerCreate, session: SessionDep):
 
 @app.get('/customers', response_model=list[Customer])
 async def list_customers(session: SessionDep):
-    return session.exec(select(Customer)).all()
+    statement = select(Customer)
+    return session.exec(statement).all()
 
 @app.get('/customers/{customer_id}', response_model=Customer)
 async def get_customer(customer_id: int, session: SessionDep):
-    customer = session.exec(select(Customer).where(Customer.id == customer_id)).first()
+    statement =  select(Customer).where(Customer.id == customer_id)
+    customer = session.exec(statement).first()
     if not customer:
-        raise HTTPException(status_code=404, detail="Customer not found")
+        raise HTTPException(status_code=404, detail="Customer doesn´t exists")
+    return customer
+
+@app.delete('/customers/{customer_id}')
+async def delete_customer(customer_id: int, session: SessionDep):
+    statement = select(Customer).where(Customer.id == customer_id)
+    customer = session.exec(statement).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer doesn´t exists, anyone has been deleted")
+    session.delete(customer)
+    session.commit()
+    return {"message": "Customer deleted"}
+
+@app.put('/customers/{customer_id}', response_model=Customer, status_code=status.HTTP_201_CREATED)
+async def update_customer(customer_id: int, customer_data: CustomerUpdate, session: SessionDep):
+    statement = select(Customer).where(Customer.id == customer_id)
+    customer = session.exec(statement).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer doesn´t exists")
+    # Se quitan los campos imitidos para que 
+    customer_data_dict = customer_data.model_dump(exclude_unset=True)
+    customer.sqlmodel_update(customer_data_dict)
+    session.commit()
+    session.refresh(customer)
     return customer
 
 @app.post('/transactions')
