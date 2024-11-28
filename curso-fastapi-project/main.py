@@ -1,27 +1,24 @@
+# main.py
+
+from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import FastAPI #Importamos FastAPI
 from fastapi import HTTPException
+from pydantic import BaseModel  
 from datetime import datetime
 import zoneinfo
 
-app = FastAPI()
+from sqlmodel import select
+from timezones import country_timezones
+from db import SessionDep, create_all_tables
+from models import Customer, CustomerCreate, Invoice, Transaction
 
-country_timezones = {
-    "CO": "America/Bogota",
-    "MX": "America/Mexico_City",
-    "AR": "America/Argentina/Buenos_Aires",
-    "BR": "America/Sao_Paulo",
-    "CL": "America/Santiago",
-    "PE": "America/Lima",
-    "VE": "America/Caracas",
-    "EC": "America/Guayaquil",
-    "BO": "America/La_Paz",
-    "PY": "America/Asuncion",
-    "UY": "America/Montevideo",
-    "GY": "America/Guayaquil",
-    "GF": "America/Cayenne",
-    "SR": "America/Paramaribo"
-}
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_all_tables()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 @app.get('/')
 async def root():
@@ -58,3 +55,31 @@ async def time(iso_code: Optional[str] = None, time_format: Optional[bool] = Fal
 @app.get('/time')
 async def time_without_code():
     return await time() 
+
+db_customers = []
+@app.post('/customers', response_model=Customer)
+async def create_customer(customer_data: CustomerCreate, session: SessionDep):
+    customer = Customer.model_validate(customer_data.model_dump())
+    session.add(customer)
+    session.commit()
+    session.refresh(customer)
+    return customer
+
+@app.get('/customers', response_model=list[Customer])
+async def list_customers(session: SessionDep):
+    return session.exec(select(Customer)).all()
+
+@app.get('/customers/{customer_id}', response_model=Customer)
+async def get_customer(customer_id: int, session: SessionDep):
+    customer = session.exec(select(Customer).where(Customer.id == customer_id)).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    return customer
+
+@app.post('/transactions')
+async def create_transaction(transaction_data: Transaction):
+    return transaction_data
+
+@app.post('/invoices')
+async def create_invoice(invoice_data: Invoice):
+    return invoice_data
