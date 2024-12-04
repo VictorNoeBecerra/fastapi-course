@@ -3,12 +3,12 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlmodel import select
 from db import SessionDep
-from models import Invoice, InvoiceCreate, InvoiceUpdate, Customer, Transaction
+from models import Invoice, Customer, Transaction
 
 router = APIRouter()
 
 @router.post('/invoices', response_model=Invoice, tags=['Invoices'])
-async def create_invoice(invoice_data: InvoiceCreate, session: SessionDep):
+async def create_invoice(invoice_data: Invoice, session: SessionDep):
     # Validación del cliente relacionado
     customer_statement = select(Customer).where(Customer.id == invoice_data.customer.id)
     customer = session.exec(customer_statement).first()
@@ -43,7 +43,7 @@ async def get_invoice(invoice_id: int, session: SessionDep):
     return invoice
 
 @router.put('/invoices/{invoice_id}', response_model=Invoice, status_code=status.HTTP_201_CREATED, tags=['Invoices'])
-async def update_invoice(invoice_id: int, invoice_data: InvoiceUpdate, session: SessionDep):
+async def update_invoice(invoice_id: int, invoice_data: Invoice, session: SessionDep):
     statement = select(Invoice).where(Invoice.id == invoice_id)
     invoice = session.exec(statement).first()
     if not invoice:
