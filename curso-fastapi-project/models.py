@@ -1,8 +1,9 @@
 # models.py
 
-from pydantic import BaseModel
-from sqlmodel import Field, Relationship, SQLModel
+from pydantic import BaseModel, EmailStr, field_validator
+from sqlmodel import Field, Relationship, SQLModel, Session, select
 from enum import Enum
+from db import engine
 
 class StatusEnum(str, Enum):
     ACTIVE = "active"
@@ -27,8 +28,21 @@ class Plan(SQLModel, table=True):
 class CustomerBase(SQLModel):
     name: str = Field(default=None)
     description: str | None = Field(default=None)
-    email: str = Field(default=None)
+    email: EmailStr = Field(default=None, unique=True)
     age: int = Field(default=None)
+    
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value):
+        session = Session(engine)
+        query = (
+            select(Customer)
+            .where(Customer.email == value)
+            )
+        result = session.exec(query).first()
+        if result:
+            raise ValueError('This email is already exist on customers data')
+        return value
 
 
 class CustomerCreate(CustomerBase):
