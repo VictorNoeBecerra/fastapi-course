@@ -1,11 +1,15 @@
 # main.py
 
+import time
+import zoneinfo
+from datetime import datetime
+
+
 from contextlib import asynccontextmanager
 from typing import Optional
-from fastapi import FastAPI #Importamos FastAPI
+from fastapi import FastAPI, Request #Importamos FastAPI
 from fastapi import HTTPException
-from datetime import datetime
-import zoneinfo
+
 
 from .routers import customers, transactions, invoices, plans
 from timezones import country_timezones
@@ -23,6 +27,16 @@ app.include_router(transactions.router)
 app.include_router(invoices.router)
 app.include_router(plans.router)
 
+
+@app.middleware("http")
+async def log_request_time(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    print(f"Request: {request.url} completed in: {process_time:.4f} sec.")
+    
+    return response
+
 @app.get('/')
 async def root():
     return {"message" :"Welcome to my first API"}
@@ -31,7 +45,7 @@ async def root():
 #Si no se especifica la varible del parámetro de time() significa que se va a acceder a la ruta /time?iso_code=MX ó /time
 #Si se especifica entonces se accede solo a /time/MX
 @app.get('/time/{iso_code}')
-async def time(iso_code: Optional[str] = None, time_format: Optional[bool] = False):
+async def get_time(iso_code: Optional[str] = None, time_format: Optional[bool] = False):
     
     if iso_code is None:
         print(iso_code)
