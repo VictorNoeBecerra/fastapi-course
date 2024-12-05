@@ -27,6 +27,14 @@ app.include_router(transactions.router)
 app.include_router(invoices.router)
 app.include_router(plans.router)
 
+@app.middleware('http')
+async def log_request_headers(request: Request, call_next):
+    print("headers de la solicitud")
+    for name, value in request.headers.items():
+        print(f"{name}: {value}")
+    
+    response = await call_next(request)
+    return response
 
 @app.middleware("http")
 async def log_request_time(request: Request, call_next):
@@ -34,8 +42,9 @@ async def log_request_time(request: Request, call_next):
     response = await call_next(request)
     process_time = time.time() - start_time
     print(f"Request: {request.url} completed in: {process_time:.4f} sec.")
-    
     return response
+
+
 
 @app.get('/')
 async def root():

@@ -13,8 +13,8 @@ def create_all_tables():
     SQLModel.metadata.create_all(engine)
     
 
-def get_Sssion():
+def get_session():
     with Session(engine) as session:
         yield session
         
-SessionDep = Annotated[Session, Depends(get_Sssion)]
+SessionDep = Annotated[Session, Depends(get_session)]
